@@ -1,7 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd 
-
+'''
+todo :
+    1.get stockid from txt and avoid depucated data
+    2.composite the data to a 2d array in order to push to csv
+    3.make title for csv
+    4.avoid banned by goodinfo find solution
+'''
 stockIdList = ['1402','2330']
 for stockId in stockIdList:
     url = 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
