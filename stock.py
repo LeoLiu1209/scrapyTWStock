@@ -9,6 +9,7 @@ todo :
     4.avoid banned by goodinfo find solution
 '''
 stockIdList = ['1402','2330']
+AllInfoList = []
 for stockId in stockIdList:
     url = 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
@@ -52,4 +53,8 @@ for stockId in stockIdList:
     # dfs = pd.read_html(str(rows))
     # print (dfs[0])
     # dfs[0].to_html("1402.html",index=False)
+    singleStockInfo = [stockId, endprice, stockdiv, moneydiv, lastyesrEps, thisyearEps]
+    AllInfoList.append(singleStockInfo)
 
+print(AllInfoList)
+    
