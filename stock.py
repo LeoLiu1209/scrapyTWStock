@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd 
+import pandas as pd
+import csvModule
 '''
 todo :
     1.get stockid from txt and avoid depucated data
@@ -57,4 +58,5 @@ for stockId in stockIdList:
     AllInfoList.append(singleStockInfo)
 
 print(AllInfoList)
+csvModule.write2csv(AllInfoList)
     

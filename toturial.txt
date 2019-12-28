@@ -1,2 +1,5 @@
 pandas toturial:
 https://www.geeksforgeeks.org/create-a-pandas-dataframe-from-lists/
+
+git cmd :
+remove git add file => git rm --cached filename
