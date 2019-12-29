@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import csvModule
+import re
+import time
 '''
 todo :
     1.get stockid from txt and avoid depucated data
@@ -9,7 +11,17 @@ todo :
     3.make title for csv
     4.avoid banned by goodinfo find solution
 '''
-stockIdList = ['1402','2330']
+def getStockIdInfoList():
+    infolist = csvModule.readStockInfoFromCSV()
+    alist = []
+    for ele in infolist:
+        alist.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
+    return alist
+
+
+stockIdList = getStockIdInfoList()
+print (stockIdList)
+
 AllInfoList = []
 for stockId in stockIdList:
     url = 'https://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
@@ -56,7 +68,7 @@ for stockId in stockIdList:
     # dfs[0].to_html("1402.html",index=False)
     singleStockInfo = [stockId, endprice, stockdiv, moneydiv, lastyesrEps, thisyearEps]
     AllInfoList.append(singleStockInfo)
+    time.sleep(3)
 
 print(AllInfoList)
 csvModule.write2csv(AllInfoList)
-    
