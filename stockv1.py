@@ -4,6 +4,8 @@ import pandas as pd
 import csvModule
 import re
 import time
+import random
+import ua
 #------time measure start -------#
 tStart = time.time()
 
@@ -23,7 +25,14 @@ for stockId in stockIdList:
         # StockDetail.asp contains all the data we need to scrapy
         url = 'https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID='+stockId
         # make agent pool #todo: make multi agent pool
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
+        fakeUA = ua.getFakeUA()
+        headers = {
+        'accept':'*/*',
+        'accept-encoding':'gzip, deflate, br',
+        'accept-language':'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7',
+        'origin': 'https://goodinfo.tw',
+        'User-Agent': fakeUA,
+        }
         r = requests.get(url, headers = headers)
         r.encoding = 'utf-8'
         soup = BeautifulSoup(r.text, 'html.parser')
@@ -64,6 +73,14 @@ for stockId in stockIdList:
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
         singleStockInfo = [stockId, endprice, stockdiv, moneydiv, lastyesrEps, thisyearEps]
         AllInfoList.append(singleStockInfo)
+
+        # Dont have to sleep when scarpy to the end stockId 
+        if stockId == stockIdList[-1]:
+                break
+        
+        # avoid for anti-scrapy rules, dont request too mush time in a loop
+        time.sleep(random.uniform(2, 4))
+        
 
 
 
