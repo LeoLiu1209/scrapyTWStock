@@ -1,5 +1,24 @@
 pandas toturial:
 https://www.geeksforgeeks.org/create-a-pandas-dataframe-from-lists/
+https://ithelp.ithome.com.tw/articles/10193421
+https://www.jianshu.com/p/837ab24c8370
+https://www.taiwancodeschool.com/single-post/2018/10/18/Python-Excel-Pandas-1
+https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html
 
 git cmd :
 remove git add file => git rm --cached filename
+
+beautifulsoup: https://leemeng.tw/beautifulsoup-cheat-sheet.html
+
+scarpy :
+    plusone=> https://ithelp.ithome.com.tw/articles/10209356
+    rex =>https://ithelp.ithome.com.tw/articles/10228719
+    https://blog.hartleybrody.com/web-scraping-cheat-sheet/#sessions-and-cookies
+    anti-scrapy : https://ithelp.ithome.com.tw/articles/10191165
+
+practice: https://github.com/jwlin/py-scraping-analysis-book
+          https://freelancerlife.info/zh/blog/python_web_scraping_horse_gambling/
+
+useful snippet : https://medium.com/@yanweiliu/python%E7%88%AC%E8%9F%B2%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98-%E4%B8%80-beautifulsoup-1ee011df8768
+
+encoding: https://sjkou.net/2017/01/06/python-requests-encoding/
