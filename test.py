@@ -2,6 +2,7 @@ import csvModule
 import re
 import pandas as pd
 import os
+import globalsVar
 
 # #csvModule.mockwrite2csv()
 
@@ -118,6 +119,8 @@ for ele in list3:
 df.to_csv(dataFilePath, encoding='big5', index=False)
 # print ('Done!!')
 '''
-AllInfoList =[['2330', '100', '0', '0', '9', '8'],['2331', '2', '3', '4', '5', '6']]
-csvModule.write2csv(AllInfoList)
+# AllInfoList =[['2330', '100', '0', '0', '9', '8'],['2331', '2', '3', '4', '5', '6']]
+# csvModule.write2csv(AllInfoList)
 # print (len(csvModule.getdatalistfromcolumn('股號')))
+
+print (globalsVar.setEPSYearStrList)

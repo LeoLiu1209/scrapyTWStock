@@ -6,6 +6,7 @@ import re
 import time
 import random
 import ua
+import globalsVar
 #------time measure start -------#
 tStart = time.time()
 
@@ -54,13 +55,12 @@ for stockId in stockIdList:
                 
         #get this, last year eps
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"}, limit=15)
-        trfromTable2 = sectionTables[13].findAll('tr')
+        trfromTable2 = sectionTables[11].findAll('tr')
         tdRows =trfromTable2[1].findAll('td') #for this year rows
         thisyearEps = tdRows[-1].getText()
         tdRows =trfromTable2[2].findAll('td') #for last year rows to get last year eps
         lastyesrEps = tdRows[-1].getText()
-
-
+        
 
         #endprice
         sectionTables = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
@@ -76,6 +76,9 @@ for stockId in stockIdList:
 
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
+                #back door for getEPSYearStr buz only do once
+                for i in range(2, 4):
+                        globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())
                 break
         
         # avoid for anti-scrapy rules, dont request too mush time in a loop

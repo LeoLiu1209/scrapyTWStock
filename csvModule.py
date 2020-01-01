@@ -3,6 +3,7 @@ import os
 import time
 import datetime
 import numpy as np
+import globalsVar
 
 currentWorkSpace = os.getcwd()
 
@@ -10,13 +11,14 @@ currentWorkSpace = os.getcwd()
 def write2csv(AllInfoList):
     dataFilePath = currentWorkSpace+'/result.csv'
     # to do : eps 年會有問題改直接抓欄位
-    # currentYear = datetime.datetime.now().year
-    # previousYear = str(currentYear-1)
+    currentYear = str(int(globalsVar.EPSYearStrList[0])+1)
+    previousYear = globalsVar.EPSYearStrList[0]
+    previous2Years = globalsVar.EPSYearStrList[1]
 
     # get alltitle
     allTitleList = getuserdefinetitle()
     # add '.csv' at the end of the current workspace path
-    programDefineTitleList=['股號', '收盤價', '股票股利', '現金股利', '2018年EPS', '2019年EPS']
+    programDefineTitleList=['股號', '收盤價', '股票股利', '現金股利', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
     print ('userdefine')
