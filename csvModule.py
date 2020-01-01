@@ -18,7 +18,7 @@ def write2csv(AllInfoList):
     # get alltitle
     allTitleList = getuserdefinetitle()
     # add '.csv' at the end of the current workspace path
-    programDefineTitleList=['股號', '收盤價', '股票股利', '現金股利', previousYear+'年EPS', currentYear+'年EPS']
+    programDefineTitleList=['股號', '收盤價', '股票股利', '現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
     print ('userdefine')

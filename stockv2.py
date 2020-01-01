@@ -60,6 +60,8 @@ for stockId in stockIdList:
         thisyearEps = tdRows[-1].getText()
         tdRows =trfromTable2[2].findAll('td') #for last year rows to get last year eps
         lastyesrEps = tdRows[-1].getText()
+        tdRows =trfromTable2[3].findAll('td') #for previous 2 year rows to get previous 2 year eps
+        previous2yearEps = tdRows[-1].getText()
         
 
         #endprice
@@ -71,7 +73,7 @@ for stockId in stockIdList:
 
 
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
-        singleStockInfo = [stockId, endprice, stockdiv, moneydiv, lastyesrEps, thisyearEps]
+        singleStockInfo = [stockId, endprice, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
         AllInfoList.append(singleStockInfo)
 
         # Dont have to sleep when scarpy to the end stockId 
