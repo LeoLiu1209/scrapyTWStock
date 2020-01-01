@@ -123,4 +123,10 @@ df.to_csv(dataFilePath, encoding='big5', index=False)
 # csvModule.write2csv(AllInfoList)
 # print (len(csvModule.getdatalistfromcolumn('股號')))
 
-print (globalsVar.setEPSYearStrList)
+# print (globalsVar.setEPSYearStrList)
+
+# allTitleList = csvModule.getuserdefinetitle()
+# print(allTitleList)
+# programDefineTitleList=['股號', '收盤價', '上上次股票股利', '上上次現金股利', '股票股利', '現金股利', '2017年EPS','2018年EPS','2019年EPS']
+# print(programDefineTitleList)
+# print(csvModule.diffList(allTitleList, programDefineTitleList))

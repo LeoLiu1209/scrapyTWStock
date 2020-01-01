@@ -38,12 +38,18 @@ for stockId in stockIdList:
         r.encoding = 'utf-8'
         soup = BeautifulSoup(r.text, 'html.parser')
 
-        #get stockdiv and moneydiv
+        #get 前一年 stockdiv and moneydiv
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_4_tbl"})
         trfromTable1 = sectionTables[4].findAll('tr')
         tdRows = trfromTable1[3].findAll('td')
         moneydiv = tdRows[1].getText()
         stockdiv = tdRows[2].getText()
+
+        #get 前兩年 stockdiv and moneydiv
+        tdRows = trfromTable1[4].findAll('td')
+        last2yearMoneydiv = tdRows[1].getText()
+        last2yearStockdiv = tdRows[2].getText()
+
         # print (len(sectionTables))
         trfromTable1Size = len(sectionTables[4].findAll('tr', limit=7))
         for i in range(3, trfromTable1Size):
@@ -73,7 +79,7 @@ for stockId in stockIdList:
 
 
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
-        singleStockInfo = [stockId, endprice, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
+        singleStockInfo = [stockId, endprice, last2yearStockdiv, last2yearMoneydiv, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
         AllInfoList.append(singleStockInfo)
 
         # Dont have to sleep when scarpy to the end stockId 
