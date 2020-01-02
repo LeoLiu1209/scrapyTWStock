@@ -110,4 +110,4 @@ def getdatalistfromcolumn(columeName):
     return StockIdandNameList
 
 def diffList(list1, list2):
-    return (list(set(list1) - set(list2)))
+    return list(set(list1).symmetric_difference(set(list2)))
