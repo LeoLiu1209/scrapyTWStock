@@ -18,9 +18,25 @@ def getStockIdInfoList():
         alist.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
     return alist
 
-currentYear = time.strftime('%Y') # or "%y"
 stockIdList = getStockIdInfoList()
 
+#當stockcsv 股票取消追蹤時在開始爬goodinfo前先去把對應的stockid rows刪除並寫入csv
+def syncfiledata():
+        # using map() to perform conversion from str list to int list
+        stockIdtoIntList = list(map(int, stockIdList)) #stockIdList read from stock.csv
+        idListRromResult = csvModule.getdatalistfromcolumn('股號') # read from result.csv
+        diffList = csvModule.diffList(stockIdtoIntList, idListRromResult)
+        dataFilePath = 'result.csv'
+        df = pd.read_csv(dataFilePath, encoding='big5', keep_default_na=False)
+        
+        deletedStockIdxlist = []
+        for stockid in diffList:
+                deletedStockIdxlist.append(idListRromResult.index(stockid))
+        df.drop(deletedStockIdxlist, inplace=True)
+        df.to_csv(dataFilePath, encoding='big5', index=False)
+
+syncfiledata()
+currentYear = time.strftime('%Y') # or "%y"
 AllInfoList = []
 for stockId in stockIdList:
         # StockDetail.asp contains all the data we need to scrapy
@@ -97,8 +113,8 @@ for stockId in stockIdList:
 
 #-------time measure end---------#
 tEnd = time.time()
-print ("It cost %f sec" % (tEnd - tStart))
+print ("It cost %f sec to finish" % (tEnd - tStart))
 
-print ('All info')
+print ('All data to csv')
 print(AllInfoList)
 csvModule.write2csv(AllInfoList)
