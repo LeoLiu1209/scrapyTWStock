@@ -19,12 +19,8 @@ def getStockIdInfoList():
         stockIdList.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
     return stockIdList
 
-def scrapyData(stockIdList):
-    currentYear = time.strftime('%Y') # or "%y"
-    AllInfoList = []
-    for stockId in stockIdList:
-        # StockDetail.asp contains all the data we need to scrapy
-        url = 'https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID='+stockId
+def requestPage(url):
+    try:
         # make agent pool #todo: make multi agent pool
         fakeUA = ua.getFakeUA()
         headers = {
@@ -34,9 +30,30 @@ def scrapyData(stockIdList):
         'origin': 'https://goodinfo.tw',
         'User-Agent': fakeUA,
         }
-        r = requests.get(url, headers = headers)
-        r.encoding = 'utf-8'
-        soup = BeautifulSoup(r.text, 'html.parser')
+        resp = requests.get(url, headers = headers)
+        if resp.status_code == 200:
+            resp.encoding = 'utf-8'
+            return BeautifulSoup(resp.text, 'html.parser')
+        else :
+            print ('status code not 200, actual code is {}'.format(resp.status_code))
+            return None
+    except Exception as e:
+        print ('request error : {}'.format(e))
+        return None
+        
+
+def scrapyData(stockIdList):
+    currentYear = time.strftime('%Y') # or "%y"
+    AllInfoList = []
+    for stockId in stockIdList:
+
+        # StockDetail.asp contains all the data we need to scrapy
+        url = 'https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID='+stockId
+        
+        # request page and return page
+        soup = requestPage(url)
+        if soup == None:
+            sys.exit('Internet error!! \nProgram finish')
 
         #get 前一年 stockdiv and moneydiv
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_4_tbl"})
