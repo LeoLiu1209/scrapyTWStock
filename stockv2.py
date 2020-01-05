@@ -1,4 +1,5 @@
 import requests
+from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 import pandas as pd
 import csvModule
@@ -30,7 +31,9 @@ def requestPage(url):
         'origin': 'https://goodinfo.tw',
         'User-Agent': fakeUA,
         }
-        resp = requests.get(url, headers = headers)
+        req = requests.Session()
+        req.mount('https://', HTTPAdapter(max_retries=5))
+        resp = req.get(url, headers = headers, timeout = 20)
         if resp.status_code == 200:
             resp.encoding = 'utf-8'
             return BeautifulSoup(resp.text, 'html.parser')
@@ -110,7 +113,7 @@ def scrapyData(stockIdList):
                         globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())
                 break
         # avoid for anti-scrapy rules, dont request too mush time in a loop
-        time.sleep(random.uniform(2, 4))
+        time.sleep(random.uniform(5, 10))
         
 #-------time measure end---------#
     tEnd = time.time()
