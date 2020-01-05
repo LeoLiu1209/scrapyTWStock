@@ -7,38 +7,22 @@ import time
 import random
 import ua
 import globalsVar
+import sys
 #------time measure start -------#
 tStart = time.time()
 
 def getStockIdInfoList():
-    #infolist = csvModule.readStockInfoFromCSV()
-    infolist = csvModule.readStockInfoFromCSV()
-    alist = []
-    for ele in infolist:
-        alist.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
-    return alist
+    stockIdListFromResultCSV = csvModule.readStockInfoFromCSV()
+    stockIdList = []
+    for ele in stockIdListFromResultCSV:
+        #split stockid and stockName #0056 00692 006656R
+        stockIdList.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
+    return stockIdList
 
-stockIdList = getStockIdInfoList()
-
-#當stockcsv 股票取消追蹤時在開始爬goodinfo前先去把對應的stockid rows刪除並寫入csv
-def syncfiledata():
-        # using map() to perform conversion from str list to int list
-        stockIdtoIntList = list(map(int, stockIdList)) #stockIdList read from stock.csv
-        idListRromResult = csvModule.getdatalistfromcolumn('股號') # read from result.csv
-        diffList = csvModule.diffList(stockIdtoIntList, idListRromResult)
-        dataFilePath = 'result.csv'
-        df = pd.read_csv(dataFilePath, encoding='big5', keep_default_na=False)
-        
-        deletedStockIdxlist = []
-        for stockid in diffList:
-                deletedStockIdxlist.append(idListRromResult.index(stockid))
-        df.drop(deletedStockIdxlist, inplace=True)
-        df.to_csv(dataFilePath, encoding='big5', index=False)
-
-syncfiledata()
-currentYear = time.strftime('%Y') # or "%y"
-AllInfoList = []
-for stockId in stockIdList:
+def scrapyData(stockIdList):
+    currentYear = time.strftime('%Y') # or "%y"
+    AllInfoList = []
+    for stockId in stockIdList:
         # StockDetail.asp contains all the data we need to scrapy
         url = 'https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID='+stockId
         # make agent pool #todo: make multi agent pool
@@ -60,7 +44,7 @@ for stockId in stockIdList:
         tdRows = trfromTable1[3].findAll('td')
         moneydiv = tdRows[1].getText()
         stockdiv = tdRows[2].getText()
-
+        
         #get 前兩年 stockdiv and moneydiv
         tdRows = trfromTable1[4].findAll('td')
         last2yearMoneydiv = tdRows[1].getText()
@@ -73,8 +57,8 @@ for stockId in stockIdList:
                 tdrows = trfromTable1[i].find('td')
                 if tdrows.getText() == currentYear:
                         moneydiv = tdrows.findNext('td').getText()
-                        stockdiv = tdrows.findNext('td').findNext('td').getText()
-                
+                        stockdiv = tdrows.findNext('td').findNext('td').getText()                # 
+       
         #get this, last year eps
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"}, limit=15)
         trfromTable2 = sectionTables[11].findAll('tr')
@@ -97,24 +81,66 @@ for stockId in stockIdList:
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
         singleStockInfo = [stockId, endprice, last2yearStockdiv, last2yearMoneydiv, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
         AllInfoList.append(singleStockInfo)
-
+        
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
                 #back door for getEPSYearStr buz only do once
                 for i in range(2, 4):
                         globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())
                 break
-        
         # avoid for anti-scrapy rules, dont request too mush time in a loop
         time.sleep(random.uniform(2, 4))
         
-
-
-
 #-------time measure end---------#
-tEnd = time.time()
-print ("It cost %f sec to finish" % (tEnd - tStart))
+    tEnd = time.time()
+    print ("It cost %f sec to finish" % (tEnd - tStart))
 
-print ('All data to csv')
-print(AllInfoList)
-csvModule.write2csv(AllInfoList)
+    print ('All data to csv')
+    print(AllInfoList)
+    csvModule.write2csv(AllInfoList)
+
+# if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
+def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
+    diffList = []
+    print('Before diff two csv stockcsv: {} resultcsv: {} '.format(stockIdListFromStockCsv, stockIdListFromResultCsv))
+    if stockIdListFromResultCsv:
+        diffList = csvModule.diffList(stockIdListFromStockCsv, stockIdListFromResultCsv)
+        print ('diff stock id in two csv: {}'.format(diffList))
+        dataFilePath = 'result.csv'
+        df = pd.read_csv(dataFilePath, encoding='big5', keep_default_na=False)
+
+        deletedStockIdxlist = []
+        for stockid in diffList:
+                try:
+                    # if stockcsv has stockid but resultcsv doesnt have difflist stockid then index() will ValueError
+                    idx = stockIdListFromResultCsv.index(stockid)
+                    deletedStockIdxlist.append(idx)
+                except ValueError:
+                    continue
+        # drop the rows by getting diff IdList[]
+        df.drop(deletedStockIdxlist, inplace=True)
+        df.to_csv(dataFilePath, encoding='big5', index=False)
+    print('Finish sync data')
+
+if __name__ == '__main__':
+    print ('Program start')
+    stockIdList = getStockIdInfoList()
+    if not stockIdList:
+        sys.exit('No stockId in stock.csv')
+    
+    # using map() to perform conversion from str list to int list
+    stockIdListFromStockCsv = list(map(int, stockIdList)) #stockIdList read from stock.csv
+    stockIdListFromResultCsv = csvModule.getdatalistfromcolumn('股號') # read from result.csv
+    print('before sync')
+
+
+    try:
+        syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv)
+    except PermissionError:
+        #syncfiledata will do to_csv so if the data is opening than will throw PermissionError
+        sys.exit("[Presmission Error]Probably result.csv is opening by others process")
+    except Exception as e:
+        sys.exit(e)
+    print('start scrapy')
+    scrapyData(stockIdList)
+    print('Program Finish')

@@ -21,33 +21,40 @@ def write2csv(AllInfoList):
     programDefineTitleList=['股號', '收盤價', previousYear+'股票股利', previousYear+'現金股利',currentYear+'股票股利', currentYear+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
-    print ('userdefine')
-    print (userDefineTitleList)
-    print ('allTitleList')
-    print (allTitleList)
+    print ('User define title: {}'.format(userDefineTitleList))
+    print ('all Title  {}'.format(allTitleList))
     
     # data must be 2d, other pd.DataFrame will meet exception
     df = pd.DataFrame(data=AllInfoList, columns=programDefineTitleList)
-
+    AllInfoListSize = len(AllInfoList)
     # build dict to keep user define title and value
     dictuserdefine = {}
-    # 判斷是否有stock資料 不然 df[userdefine] 會壞掉
+
     if len(getdatalistfromcolumn('股號')) == 0:
-        df = pd.DataFrame(data=AllInfoList, columns=allTitleList)
+        # df = pd.DataFrame(data=AllInfoList, columns=allTitleList)
+        # set default value if first title scrapy and already had user define title
+        userDefineRowsSize = ['Na'] * AllInfoListSize
+        # assign user define data to column
+        for userDefineKey in userDefineTitleList:
+            df[userDefineKey] = userDefineRowsSize
     else :
+        print ('len AllingoList {}'.format(len(AllInfoList)))
         for userDefineColumnValues in userDefineTitleList:
             value = getdatalistfromcolumn(userDefineColumnValues)
-            dictuserdefine[userDefineColumnValues]=value
-        print ('user define dict')
-        print (dictuserdefine)
-    
+            # add new stock in stockcsv and set count how many rows user define value we have to set to na
+            # ex  1260   1
+            #     2260   na   => AllInfoListSize =2 val = 1 so we need to set one more rows to na
+            # list [1,2] + list [3,4] => [1,2,3,4]
+            dictuserdefine[userDefineColumnValues]=value + ['Na'] * (AllInfoListSize - len(value))
+        print ('user define dict {}'.format(dictuserdefine))
+ 
         # assign user define data to column
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = dictuserdefine[userDefineKey]
 
     # encoding to big5 for zh-tw
     df.to_csv(dataFilePath, encoding='big5', index=False)
-    # print ('Done!!')
+    print ('Done Scrapy with {} stockId.'.format(len(AllInfoList)))
 
 def mockwrite2csv(AllInfoList):
     dataFilePath = os.getcwd()+'/test/result.csv'
@@ -105,8 +112,6 @@ def getdatalistfromcolumn(columeName):
     df = pd.read_csv(dataFilePath, encoding='big5', keep_default_na=False)
     # df[columeName] = df[columeName].replace(np.nan, "cc")
     StockIdandNameList = list(df.loc[:, columeName])
-    print ('show columns vale')
-    print (StockIdandNameList)
     return StockIdandNameList
 
 def diffList(list1, list2):
