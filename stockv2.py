@@ -42,11 +42,13 @@ def scrapyData(stockIdList):
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_4_tbl"})
         trfromTable1 = sectionTables[4].findAll('tr')
         tdRows = trfromTable1[3].findAll('td')
+        lastYearDiviendStr = tdRows[0].getText()
         moneydiv = tdRows[1].getText()
         stockdiv = tdRows[2].getText()
         
         #get 前兩年 stockdiv and moneydiv
         tdRows = trfromTable1[4].findAll('td')
+        last2yearDiviendStr = tdRows[0].getText()
         last2yearMoneydiv = tdRows[1].getText()
         last2yearStockdiv = tdRows[2].getText()
 
@@ -84,6 +86,8 @@ def scrapyData(stockIdList):
         
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
+                #back door for diviendYearStr
+                globalsVar.setDiviendYearStrList([lastYearDiviendStr, last2yearDiviendStr])
                 #back door for getEPSYearStr buz only do once
                 for i in range(2, 4):
                         globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())

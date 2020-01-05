@@ -10,15 +10,19 @@ currentWorkSpace = os.getcwd()
 
 def write2csv(AllInfoList):
     dataFilePath = currentWorkSpace+'/result.csv'
-    # to do : eps 年會有問題改直接抓欄位
+    # to do : eps 年會有問題改直接抓欄位 => 
     currentYear = str(int(globalsVar.EPSYearStrList[0])+1)
     previousYear = globalsVar.EPSYearStrList[0]
     previous2Years = globalsVar.EPSYearStrList[1]
 
+    print ('previous {} previous2year {}'.format(previousYear, previous2Years)) 
     # get alltitle
     allTitleList = getuserdefinetitle()
-    # add '.csv' at the end of the current workspace path
-    programDefineTitleList=['股號', '收盤價', previousYear+'股票股利', previousYear+'現金股利',currentYear+'股票股利', currentYear+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
+    #將股利從西元轉明國年
+    RocPreviousYeay = convertToRocYear(globalsVar.DiviendYearStrList[0])
+    RocPrevious2Year = convertToRocYear(globalsVar.DiviendYearStrList[1])
+    # program define title
+    programDefineTitleList=['股號', '收盤價', RocPrevious2Year+'股票股利', RocPrevious2Year+'現金股利',RocPreviousYeay+'股票股利', RocPreviousYeay+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
     print ('User define title: {}'.format(userDefineTitleList))
@@ -116,3 +120,6 @@ def getdatalistfromcolumn(columeName):
 
 def diffList(list1, list2):
     return list(set(list1).symmetric_difference(set(list2)))
+
+def convertToRocYear(year):
+    return str(int(year)-1911)
