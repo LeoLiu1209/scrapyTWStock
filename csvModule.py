@@ -4,7 +4,7 @@ import time
 import datetime
 import numpy as np
 import globalsVar
-
+import shutil
 currentWorkSpace = os.getcwd()
 
 
@@ -123,3 +123,8 @@ def diffList(list1, list2):
 
 def convertToRocYear(year):
     return str(int(year)-1911)
+
+# file will be copy to /backup/
+def backupfile(src_path):
+    des_path = currentWorkSpace+'/backup/'+time.strftime('%m%d')+src_path
+    shutil.copyfile(src_path, des_path)

@@ -127,6 +127,9 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
     print('Finish sync data')
 
 if __name__ == '__main__':
+    print ('Backup lastest result.csv file to /backup/')
+    csvModule.backupfile('result.csv')
+
     print ('Program start')
     stockIdList = getStockIdInfoList()
     if not stockIdList:
