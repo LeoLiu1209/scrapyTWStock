@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import globalsVar
 import shutil
+from collections import OrderedDict 
 currentWorkSpace = os.getcwd()
 
 
@@ -27,12 +28,19 @@ def write2csv(AllInfoList):
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
     print ('User define title: {}'.format(userDefineTitleList))
     print ('all Title  {}'.format(allTitleList))
-    
+    # use list slice to reassign userdine in correct order
+    # buz list return from diffList is not inorder.
+    # alltitle = [a,b,c,d] userdefine = [c,d] => alltitle[2:4] start from 2 not include idx 4
+    nAllTitleListSize = len(allTitleList)
+    userDefineTitleList = allTitleList[nAllTitleListSize-len(userDefineTitleList):nAllTitleListSize]
+    print ('oder user title {}'.format(userDefineTitleList))
+
     # data must be 2d, other pd.DataFrame will meet exception
     df = pd.DataFrame(data=AllInfoList, columns=programDefineTitleList)
     AllInfoListSize = len(AllInfoList)
     # build dict to keep user define title and value
-    dictuserdefine = {}
+    # OrderedDict preserves the order
+    dictuserdefine = OrderedDict() 
 
     if len(getdatalistfromcolumn('股號')) == 0:
         # df = pd.DataFrame(data=AllInfoList, columns=allTitleList)
@@ -52,6 +60,9 @@ def write2csv(AllInfoList):
             dictuserdefine[userDefineColumnValues]=value + ['Na'] * (AllInfoListSize - len(value))
         print ('user define dict {}'.format(dictuserdefine))
  
+        #test
+        for userDefineKey in userDefineTitleList:
+            print( dictuserdefine[userDefineKey])
         # assign user define data to column
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = dictuserdefine[userDefineKey]
