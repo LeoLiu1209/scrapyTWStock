@@ -22,6 +22,7 @@ def write2csv(AllInfoList):
     #將股利從西元轉明國年
     RocPreviousYeay = convertToRocYear(globalsVar.DiviendYearStrList[0])
     RocPrevious2Year = convertToRocYear(globalsVar.DiviendYearStrList[1])
+    print ('RocPreviousYeay {} RocPrevious2Year {}'.format(RocPreviousYeay, RocPrevious2Year)) 
     # program define title
     programDefineTitleList=['股號', '收盤價', RocPrevious2Year+'股票股利', RocPrevious2Year+'現金股利',RocPreviousYeay+'股票股利', RocPreviousYeay+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 

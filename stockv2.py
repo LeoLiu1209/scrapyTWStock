@@ -61,25 +61,29 @@ def scrapyData(stockIdList):
         #get 前一年 stockdiv and moneydiv
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_4_tbl"})
         trfromTable1 = sectionTables[4].findAll('tr')
-        tdRows = trfromTable1[3].findAll('td')
-        lastYearDiviendStr = tdRows[0].getText()
-        moneydiv = tdRows[1].getText()
-        stockdiv = tdRows[2].getText()
+        # tdRows = trfromTable1[3].findAll('td')
+        lastYearDiviendStr = str(int(currentYear)-1)
+        # moneydiv = tdRows[1].getText()
+        # stockdiv = tdRows[2].getText()
         
         #get 前兩年 stockdiv and moneydiv
-        tdRows = trfromTable1[4].findAll('td')
-        last2yearDiviendStr = tdRows[0].getText()
-        last2yearMoneydiv = tdRows[1].getText()
-        last2yearStockdiv = tdRows[2].getText()
+        # tdRows = trfromTable1[4].findAll('td')
+        last2yearDiviendStr = str(int(currentYear)-2)
+        # last2yearMoneydiv = tdRows[1].getText()
+        # last2yearStockdiv = tdRows[2].getText()
 
         # print (len(sectionTables))
         trfromTable1Size = len(sectionTables[4].findAll('tr', limit=7))
         for i in range(3, trfromTable1Size):
                 #equal to if trfromTable1[i].findAll('td')[0].getText() == currentYear:
                 tdrows = trfromTable1[i].find('td')
-                if tdrows.getText() == currentYear:
+                tdrows2 = trfromTable1[i+1].find('td')
+                if tdrows.getText() == lastYearDiviendStr:
                         moneydiv = tdrows.findNext('td').getText()
-                        stockdiv = tdrows.findNext('td').findNext('td').getText()                # 
+                        stockdiv = tdrows.findNext('td').findNext('td').getText()
+                        last2yearMoneydiv = tdrows2.findNext('td').getText()
+                        last2yearStockdiv = tdrows2.findNext('td').findNext('td').getText()
+                        break
        
         #get this, last year eps
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"}, limit=15)
