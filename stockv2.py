@@ -49,6 +49,7 @@ def requestPage(url):
 def scrapyData(stockIdList):
     currentYear = time.strftime('%Y') # or "%y"
     AllInfoList = []
+    count = 0
     for stockId in stockIdList:
 
         # StockDetail.asp contains all the data we need to scrapy
@@ -109,6 +110,9 @@ def scrapyData(stockIdList):
         singleStockInfo = [stockId, endprice, last2yearStockdiv, last2yearMoneydiv, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
         AllInfoList.append(singleStockInfo)
         
+        count+=1
+        print ('Finish scrapy {} stock'.format(count))
+
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
                 #back door for diviendYearStr
@@ -122,7 +126,7 @@ def scrapyData(stockIdList):
         
 #-------time measure end---------#
     tEnd = time.time()
-    print ("It cost %f sec to finish" % (tEnd - tStart))
+    # print ("It cost %f sec to finish" % (tEnd - tStart))
 
     print ('All data to csv')
     print(AllInfoList)
@@ -131,7 +135,7 @@ def scrapyData(stockIdList):
 # if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
 def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
     diffList = []
-    print('Before diff two csv stockcsv: {} resultcsv: {} '.format(stockIdListFromStockCsv, stockIdListFromResultCsv))
+    # print('Before diff two csv stockcsv: {} resultcsv: {} '.format(stockIdListFromStockCsv, stockIdListFromResultCsv))
     if stockIdListFromResultCsv:
         diffList = csvModule.diffList(stockIdListFromStockCsv, stockIdListFromResultCsv)
         print ('diff stock id in two csv: {}'.format(diffList))
@@ -153,17 +157,17 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
 
         # sheet2
         wb = load_workbook(filename = 'resultx.xlsx')
-        sheet_ranges = wb['sn2']
+        sheet_ranges = wb['record']
         data_rows = []
         for row in sheet_ranges.values:
             data_cols = []
             for cell in row:
                 data_cols.append(cell)
             data_rows.append(data_cols)
-        print(data_rows)
+        # print(data_rows)
         df2 = pd.DataFrame(data_rows)
-        print(df2)
-        df2.to_excel(writer, sheet_name='sn2', index=False, header=False)
+        # print(df2)
+        df2.to_excel(writer, sheet_name='record', index=False, header=False)
         writer.save()
     print('Finish sync data')
 

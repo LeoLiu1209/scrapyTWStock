@@ -17,25 +17,25 @@ def write2csv(AllInfoList):
     previousYear = globalsVar.EPSYearStrList[0]
     previous2Years = globalsVar.EPSYearStrList[1]
 
-    print ('previous {} previous2year {}'.format(previousYear, previous2Years)) 
+    # print ('previous {} previous2year {}'.format(previousYear, previous2Years)) 
     # get alltitle
     allTitleList = getuserdefinetitle()
     #將股利從西元轉明國年
     RocPreviousYeay = convertToRocYear(globalsVar.DiviendYearStrList[0])
     RocPrevious2Year = convertToRocYear(globalsVar.DiviendYearStrList[1])
-    print ('RocPreviousYeay {} RocPrevious2Year {}'.format(RocPreviousYeay, RocPrevious2Year)) 
+    # print ('RocPreviousYeay {} RocPrevious2Year {}'.format(RocPreviousYeay, RocPrevious2Year)) 
     # program define title
     programDefineTitleList=['股號', '收盤價', RocPrevious2Year+'股票股利', RocPrevious2Year+'現金股利',RocPreviousYeay+'股票股利', RocPreviousYeay+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
-    print ('User define title: {}'.format(userDefineTitleList))
+    # print ('User define title: {}'.format(userDefineTitleList))
     print ('all Title  {}'.format(allTitleList))
     # use list slice to reassign userdine in correct order
     # buz list return from diffList is not inorder.
     # alltitle = [a,b,c,d] userdefine = [c,d] => alltitle[2:4] start from 2 not include idx 4
     nAllTitleListSize = len(allTitleList)
     userDefineTitleList = allTitleList[nAllTitleListSize-len(userDefineTitleList):nAllTitleListSize]
-    print ('oder user title {}'.format(userDefineTitleList))
+    # print ('oder user title {}'.format(userDefineTitleList))
 
     # data must be 2d, other pd.DataFrame will meet exception
     df = pd.DataFrame(data=AllInfoList, columns=programDefineTitleList)
@@ -74,7 +74,7 @@ def write2csv(AllInfoList):
     print ('Done Scrapy with {} stockId.'.format(len(AllInfoList)))
 
 def write2excel(AllInfoList):
-    print('2excel2excel2excel')
+    # print('2excel2excel2excel')
     dataFilePath = currentWorkSpace+'/resultx.xlsx'
     # to do : eps 年會有問題改直接抓欄位 => 
     currentYear = str(int(globalsVar.EPSYearStrList[0])+1)
@@ -100,7 +100,7 @@ def write2excel(AllInfoList):
     # alltitle = [a,b,c,d] userdefine = [c,d] => alltitle[2:4] start from 2 not include idx 4
     nAllTitleListSize = len(allTitleList)
     userDefineTitleList = allTitleList[nAllTitleListSize-len(userDefineTitleList):nAllTitleListSize]
-    print ('oder user title {}'.format(userDefineTitleList))
+    # print ('oder user title {}'.format(userDefineTitleList))
 
     # data must be 2d, other pd.DataFrame will meet exception
     df = pd.DataFrame(data=AllInfoList, columns=programDefineTitleList)
@@ -117,7 +117,7 @@ def write2excel(AllInfoList):
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = userDefineRowsSize
     else :
-        print ('len AllingoList {}'.format(len(AllInfoList)))
+        # print ('len AllingoList {}'.format(len(AllInfoList)))
         for userDefineColumnValues in userDefineTitleList:
             value = getdatalistfromcolumnXlsx(userDefineColumnValues, 'result')
             # add new stock in stockcsv and set count how many rows user define value we have to set to na
@@ -125,33 +125,30 @@ def write2excel(AllInfoList):
             #     2260   na   => AllInfoListSize =2 val = 1 so we need to set one more rows to na
             # list [1,2] + list [3,4] => [1,2,3,4]
             dictuserdefine[userDefineColumnValues]=value + ['Na'] * (AllInfoListSize - len(value))
-        print ('user define dict {}'.format(dictuserdefine))
+        # print ('user define dict {}'.format(dictuserdefine))
  
-        #test
-        for userDefineKey in userDefineTitleList:
-            print( dictuserdefine[userDefineKey])
         # assign user define data to column
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = dictuserdefine[userDefineKey]
 
     writer = pd.ExcelWriter('resultx.xlsx', engine='xlsxwriter')
-    print('show df {}'.format(df))
+    # print('show df {}'.format(df))
     # encoding to big5 for zh-tw
     df.to_excel(writer, sheet_name="result", encoding='big5', index=False)
 
     # sheet2
     wb = load_workbook(filename = 'resultx.xlsx')
-    sheet_ranges = wb['sn2']
+    sheet_ranges = wb['record']
     data_rows = []
     for row in sheet_ranges.values:
         data_cols = []
         for cell in row:
             data_cols.append(cell)
         data_rows.append(data_cols)
-    print(data_rows)
+    # print(data_rows)
     df2 = pd.DataFrame(data_rows)
-    print(df2)
-    df2.to_excel(writer, sheet_name='sn2', index=False, header=False)
+    # print(df2)
+    df2.to_excel(writer, sheet_name='record', index=False, header=False)
     writer.save()
     print ('Done Scrapy with {} stockId.'.format(len(AllInfoList)))
 
