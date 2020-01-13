@@ -9,11 +9,12 @@ import random
 import ua
 import globalsVar
 import sys
+from openpyxl import load_workbook
 #------time measure start -------#
 tStart = time.time()
 
 def getStockIdInfoList():
-    stockIdListFromResultCSV = csvModule.readStockInfoFromCSV()
+    stockIdListFromResultCSV = csvModule.readStockInfoFromExcel()
     stockIdList = []
     for ele in stockIdListFromResultCSV:
         #split stockid and stockName #0056 00692 006656R
@@ -125,7 +126,7 @@ def scrapyData(stockIdList):
 
     print ('All data to csv')
     print(AllInfoList)
-    csvModule.write2csv(AllInfoList)
+    csvModule.write2excel(AllInfoList)
 
 # if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
 def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
@@ -134,8 +135,8 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
     if stockIdListFromResultCsv:
         diffList = csvModule.diffList(stockIdListFromStockCsv, stockIdListFromResultCsv)
         print ('diff stock id in two csv: {}'.format(diffList))
-        dataFilePath = 'result.csv'
-        df = pd.read_csv(dataFilePath, encoding='big5', keep_default_na=False)
+        dataFilePath = 'resultx.xlsx'
+        df = pd.read_excel(dataFilePath,sheet_name='result', encoding='big5', keep_default_na=False)
 
         deletedStockIdxlist = []
         for stockid in diffList:
@@ -145,14 +146,30 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
                     deletedStockIdxlist.append(idx)
                 except ValueError:
                     continue
+        writer = pd.ExcelWriter('resultx.xlsx', engine='xlsxwriter')
         # drop the rows by getting diff IdList[]
         df.drop(deletedStockIdxlist, inplace=True)
-        df.to_csv(dataFilePath, encoding='big5', index=False)
+        df.to_excel(writer, sheet_name='result', index=False)
+
+        # sheet2
+        wb = load_workbook(filename = 'resultx.xlsx')
+        sheet_ranges = wb['sn2']
+        data_rows = []
+        for row in sheet_ranges.values:
+            data_cols = []
+            for cell in row:
+                data_cols.append(cell)
+            data_rows.append(data_cols)
+        print(data_rows)
+        df2 = pd.DataFrame(data_rows)
+        print(df2)
+        df2.to_excel(writer, sheet_name='sn2', index=False, header=False)
+        writer.save()
     print('Finish sync data')
 
 if __name__ == '__main__':
-    print ('Backup lastest result.csv file to /backup/')
-    csvModule.backupfile('result.csv')
+    print ('Backup lastest resultx.xlsx file to /backup/')
+    csvModule.backupfile('resultx.xlsx')
 
     print ('Program start')
     stockIdList = getStockIdInfoList()
@@ -161,7 +178,7 @@ if __name__ == '__main__':
     
     # using map() to perform conversion from str list to int list
     stockIdListFromStockCsv = list(map(int, stockIdList)) #stockIdList read from stock.csv
-    stockIdListFromResultCsv = csvModule.getdatalistfromcolumn('股號') # read from result.csv
+    stockIdListFromResultCsv = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from result.csv
     print('before sync')
 
 
