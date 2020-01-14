@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "stockv2.py", line 229, in <module>
+    scrapyData(stockIdList)
+  File "stockv2.py", line 43, in scrapyData
+    trfromTable1 = sectionTables[4].findAll('tr')
+IndexError: list index out of range
