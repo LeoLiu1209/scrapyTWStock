@@ -172,6 +172,11 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
     print('Finish sync data')
 
 if __name__ == '__main__':
+    print (time.strftime('%m%d'))
+    if(time.strftime('%m%d') == '0120'):
+        print ('expired of using program')
+        sys.exit(1)
+    
     print ('Backup lastest resultx.xlsx file to /backup/')
     csvModule.backupfile('resultx.xlsx')
 
