@@ -10,6 +10,7 @@ import ua
 import globalsVar
 import sys
 from openpyxl import load_workbook
+from urllib3.util.retry import Retry
 #------time measure start -------#
 tStart = time.time()
 
@@ -33,7 +34,11 @@ def requestPage(url):
         'User-Agent': fakeUA,
         }
         req = requests.Session()
-        req.mount('https://', HTTPAdapter(max_retries=5))
+        req.keep_alive = False
+        retries = Retry(total=5,
+                backoff_factor=0.5,
+                status_forcelist=[ 500, 502, 503, 504 ])
+        req.mount('https://', HTTPAdapter(max_retries=retries))
         resp = req.get(url, headers = headers, timeout = 20)
         if resp.status_code == 200:
             resp.encoding = 'utf-8'
@@ -43,7 +48,8 @@ def requestPage(url):
             return None
     except Exception as e:
         print ('request error : {}'.format(e))
-        return None
+        time.sleep(3)
+        return requestPage(url)
         
 
 def scrapyData(stockIdList):
@@ -122,7 +128,7 @@ def scrapyData(stockIdList):
                         globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())
                 break
         # avoid for anti-scrapy rules, dont request too mush time in a loop
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(7, 11))
         
 #-------time measure end---------#
     tEnd = time.time()
