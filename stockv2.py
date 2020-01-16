@@ -54,54 +54,46 @@ def requestPage(url):
 
 def scrapyData(stockIdList):
     currentYear = time.strftime('%Y') # or "%y"
+    lastYearDiviendStr = str(int(currentYear)-1)#2019
+    last2yearDiviendStr = str(int(currentYear)-2)#2018
+    last3yearDiviendStr = str(int(currentYear)-3)#2017
     AllInfoList = []
     count = 0
     for stockId in stockIdList:
 
         # StockDetail.asp contains all the data we need to scrapy
-        url = 'https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID='+stockId
+        url = 'https://goodinfo.tw/StockInfo/StockDividendPolicy.asp?STOCK_ID='+stockId
         
         # request page and return page
         soup = requestPage(url)
         if soup == None:
             sys.exit('Internet error!! \nProgram finish')
 
-        #get 前一年 stockdiv and moneydiv
-        sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_4_tbl"})
-        trfromTable1 = sectionTables[4].findAll('tr')
-        # tdRows = trfromTable1[3].findAll('td')
-        lastYearDiviendStr = str(int(currentYear)-1)
-        # moneydiv = tdRows[1].getText()
-        # stockdiv = tdRows[2].getText()
-        
-        #get 前兩年 stockdiv and moneydiv
-        # tdRows = trfromTable1[4].findAll('td')
-        last2yearDiviendStr = str(int(currentYear)-2)
-        # last2yearMoneydiv = tdRows[1].getText()
-        # last2yearStockdiv = tdRows[2].getText()
+        sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"})
+        trfromTable2 = sectionTables[2].findAll('tr', limit=20)
+        trfromTable2Size = len(sectionTables[2].findAll('tr', limit=20))
+        previous2yearEps = 0
+        lastyesrEps = 0
+        thisyearEps = 0
 
-        # print (len(sectionTables))
-        trfromTable1Size = len(sectionTables[4].findAll('tr', limit=7))
-        for i in range(3, trfromTable1Size):
-                #equal to if trfromTable1[i].findAll('td')[0].getText() == currentYear:
-                tdrows = trfromTable1[i].find('td')
-                tdrows2 = trfromTable1[i+1].find('td')
-                if tdrows.getText() == lastYearDiviendStr:
-                        moneydiv = tdrows.findNext('td').getText()
-                        stockdiv = tdrows.findNext('td').findNext('td').getText()
-                        last2yearMoneydiv = tdrows2.findNext('td').getText()
-                        last2yearStockdiv = tdrows2.findNext('td').findNext('td').getText()
-                        break
-       
-        #get this, last year eps
-        sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"}, limit=15)
-        trfromTable2 = sectionTables[11].findAll('tr')
-        tdRows =trfromTable2[1].findAll('td') #for this year rows
-        thisyearEps = tdRows[-1].getText()
-        tdRows =trfromTable2[2].findAll('td') #for last year rows to get last year eps
-        lastyesrEps = tdRows[-1].getText()
-        tdRows =trfromTable2[3].findAll('td') #for previous 2 year rows to get previous 2 year eps
-        previous2yearEps = tdRows[-1].getText()
+        for i in range(4, trfromTable2Size):
+            tdRows =trfromTable2[i].findAll('td')
+            year = tdRows[0].getText()
+            if not year.isdigit():
+                print('not digit')
+                continue
+            if year == lastYearDiviendStr:
+                thisyearEps = tdRows[-4].getText()
+                moneydiv = tdRows[3].getText()
+                stockdiv = tdRows[6].getText()
+            elif year == last2yearDiviendStr:
+                lastyesrEps = tdRows[-4].getText()
+                last2yearMoneydiv = tdRows[3].getText()
+                last2yearStockdiv = tdRows[6].getText()
+            elif year == last3yearDiviendStr:
+                previous2yearEps = tdRows[-4].getText()
+                if previous2yearEps is not '0':
+                    break
         
 
         #endprice
@@ -121,12 +113,11 @@ def scrapyData(stockIdList):
 
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
-                #back door for diviendYearStr
-                globalsVar.setDiviendYearStrList([lastYearDiviendStr, last2yearDiviendStr])
-                #back door for getEPSYearStr buz only do once
-                for i in range(2, 4):
-                        globalsVar.setEPSYearStrList(trfromTable2[i].find('td').getText())
-                break
+            #back door for diviendYearStr
+            globalsVar.setDiviendYearStrList([lastYearDiviendStr, last2yearDiviendStr])
+            #back door for getEPSYearStr buz only do once
+            globalsVar.setEPSYearStrList([last2yearDiviendStr, last3yearDiviendStr])
+            break
         # avoid for anti-scrapy rules, dont request too mush time in a loop
         time.sleep(random.uniform(7, 11))
         

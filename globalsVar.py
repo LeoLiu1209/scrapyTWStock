@@ -1,7 +1,7 @@
 EPSYearStrList = []
 def setEPSYearStrList(arg):
     global EPSYearStrList
-    EPSYearStrList.append(arg)
+    EPSYearStrList = arg
     # print(EPSYearStrList)
 
 DiviendYearStrList = []
