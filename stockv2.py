@@ -75,7 +75,6 @@ def scrapyData(stockIdList):
         previous2yearEps = 0
         lastyesrEps = 0
         thisyearEps = 0
-
         for i in range(4, trfromTable2Size):
             tdRows =trfromTable2[i].findAll('td')
             year = tdRows[0].getText()
@@ -83,11 +82,9 @@ def scrapyData(stockIdList):
                 print('not digit')
                 continue
             if year == lastYearDiviendStr:
-                thisyearEps = tdRows[-4].getText()
                 moneydiv = tdRows[3].getText()
                 stockdiv = tdRows[6].getText()
             elif year == last2yearDiviendStr:
-                lastyesrEps = tdRows[-4].getText()
                 last2yearMoneydiv = tdRows[3].getText()
                 last2yearStockdiv = tdRows[6].getText()
             elif year == last3yearDiviendStr:
@@ -95,13 +92,33 @@ def scrapyData(stockIdList):
                 if previous2yearEps is not '0':
                     break
         
-
         #endprice
         sectionTables = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
         # trfromTable3 = sectionTables.findAll('tr')[3]
         # tdRows =trfromTable3[3].findAll('td')       => equals to sectionTables.findAll('tr')[3].find('td').getText()
         # endprice = tdRows[0].getText()
         endprice = sectionTables.findAll('tr', limit=5)[3].find('td').getText()
+        time.sleep(random.uniform(6, 8))
+
+        #eps
+        urleps = 'http://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
+        # request page and return page
+        soup = requestPage(urleps)
+        if soup == None:
+            sys.exit('Internet error!! \nProgram finish')
+        
+        sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"})
+        trfromTable2 = sectionTables[1].findAll('tr', limit = 10)
+        trfromTable2Size = len(sectionTables[1].findAll('tr', limit = 10))
+
+        for i in range(2, trfromTable2Size):
+            tdRows =trfromTable2[i].findAll('td') #for this year rows
+            year = tdRows[0].getText()
+            if year == last2yearDiviendStr:
+                thisyearEps = trfromTable2[i-1].findAll('td')[-3].getText()
+                lastyesrEps = tdRows[-3].getText()
+                previous2yearEps = trfromTable2[i+1].findAll('td')[-3].getText()
+                break
 
 
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
