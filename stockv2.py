@@ -210,3 +210,4 @@ if __name__ == '__main__':
     print('start scrapy')
     scrapyData(stockIdList)
     print('Program Finish')
+    input('成功產製報表')
