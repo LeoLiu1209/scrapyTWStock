@@ -8,4 +8,4 @@ DiviendYearStrList = []
 def setDiviendYearStrList(arg):
     global DiviendYearStrList
     DiviendYearStrList = arg
-    print('diviend year list {}'.format(DiviendYearStrList))
+    # print('diviend year list {}'.format(DiviendYearStrList))

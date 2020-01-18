@@ -53,7 +53,7 @@ def write2csv(AllInfoList):
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = userDefineRowsSize
     else :
-        print ('len AllingoList {}'.format(len(AllInfoList)))
+        # print ('len AllingoList {}'.format(len(AllInfoList)))
         for userDefineColumnValues in userDefineTitleList:
             value = getdatalistfromcolumn(userDefineColumnValues)
             # add new stock in stockcsv and set count how many rows user define value we have to set to na
@@ -61,11 +61,11 @@ def write2csv(AllInfoList):
             #     2260   na   => AllInfoListSize =2 val = 1 so we need to set one more rows to na
             # list [1,2] + list [3,4] => [1,2,3,4]
             dictuserdefine[userDefineColumnValues]=value + ['Na'] * (AllInfoListSize - len(value))
-        print ('user define dict {}'.format(dictuserdefine))
+        # print ('user define dict {}'.format(dictuserdefine))
  
         #test
-        for userDefineKey in userDefineTitleList:
-            print( dictuserdefine[userDefineKey])
+        # for userDefineKey in userDefineTitleList:
+            # print( dictuserdefine[userDefineKey])
         # assign user define data to column
         for userDefineKey in userDefineTitleList:
             df[userDefineKey] = dictuserdefine[userDefineKey]
@@ -82,20 +82,20 @@ def write2excel(AllInfoList):
     previousYear = globalsVar.EPSYearStrList[0]
     previous2Years = globalsVar.EPSYearStrList[1]
 
-    print ('previous {} previous2year {}'.format(previousYear, previous2Years)) 
+    # print ('previous {} previous2year {}'.format(previousYear, previous2Years)) 
     # get alltitle
     allTitleList = getuserdefinetitle('resultx.xlsx', 'result')
-    print ('xxxxxxx alltitle {}'.format(allTitleList))
+    # print ('xxxxxxx alltitle {}'.format(allTitleList))
     #將股利從西元轉明國年
     RocPreviousYeay = convertToRocYear(globalsVar.DiviendYearStrList[0])
     RocPrevious2Year = convertToRocYear(globalsVar.DiviendYearStrList[1])
-    print ('RocPreviousYeay {} RocPrevious2Year {}'.format(RocPreviousYeay, RocPrevious2Year)) 
+    # print ('RocPreviousYeay {} RocPrevious2Year {}'.format(RocPreviousYeay, RocPrevious2Year)) 
     # program define title
     programDefineTitleList=['股號', '收盤價', RocPrevious2Year+'股票股利', RocPrevious2Year+'現金股利',RocPreviousYeay+'股票股利', RocPreviousYeay+'現金股利', previous2Years+'年EPS', previousYear+'年EPS', currentYear+'年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
-    print ('User define title: {}'.format(userDefineTitleList))
-    print ('all Title  {}'.format(allTitleList))
+    # print ('User define title: {}'.format(userDefineTitleList))
+    # print ('all Title  {}'.format(allTitleList))
     # use list slice to reassign userdine in correct order
     # buz list return from diffList is not inorder.
     # alltitle = [a,b,c,d] userdefine = [c,d] => alltitle[2:4] start from 2 not include idx 4
@@ -164,15 +164,15 @@ def mockwrite2csv(AllInfoList):
     programDefineTitleList=['股號', '收盤價', '股票股利', '現金股利', '2018年EPS', '2019年EPS']
     # find diff title 
     userDefineTitleList = diffList(allTitleList, programDefineTitleList)
-    print ('userdefine')
-    print (userDefineTitleList)
+    # print ('userdefine')
+    # print (userDefineTitleList)
     # build dict to keep user define title and value
     dictuserdefine = {}
     for userDefineColumnValues in userDefineTitleList:
         value = getdatalistfromcolumn(userDefineColumnValues)
         dictuserdefine[userDefineColumnValues]=value
-    print ('user define dict')
-    print (dictuserdefine)
+    # print ('user define dict')
+    # print (dictuserdefine)
 
     # data must be 2d, other pd.DataFrame will meet exception
     df = pd.DataFrame(data=AllInfoList, columns=programDefineTitleList)
@@ -211,7 +211,7 @@ def mockreadStockInfoFromCSV():
 
 def getuserdefinetitle(filename, sheetname):
     dataFilePath = currentWorkSpace+'/'+filename
-    print(dataFilePath)
+    # print(dataFilePath)
     df = pd.read_excel(dataFilePath,sheet_name=sheetname, encoding='big5')
     # print (df.columns.values.tolist())
     return df.columns.values.tolist()

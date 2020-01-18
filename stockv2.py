@@ -79,7 +79,7 @@ def scrapyData(stockIdList):
             tdRows =trfromTable2[i].findAll('td')
             year = tdRows[0].getText()
             if not year.isdigit():
-                print('not digit')
+                # print('not digit')
                 continue
             if year == lastYearDiviendStr:
                 moneydiv = tdRows[3].getText()
@@ -142,8 +142,8 @@ def scrapyData(stockIdList):
     tEnd = time.time()
     # print ("It cost %f sec to finish" % (tEnd - tStart))
 
-    print ('All data to csv')
-    print(AllInfoList)
+    # print ('All data to csv')
+    # print(AllInfoList)
     csvModule.write2excel(AllInfoList)
 
 # if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
