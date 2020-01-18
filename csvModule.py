@@ -6,7 +6,8 @@ import numpy as np
 import globalsVar
 import shutil
 from collections import OrderedDict 
-from openpyxl import load_workbook
+# from openpyxl import load_workbook
+import openpyxl
 currentWorkSpace = os.getcwd()
 
 
@@ -137,7 +138,7 @@ def write2excel(AllInfoList):
     df.to_excel(writer, sheet_name="result", encoding='big5', index=False)
 
     # sheet2
-    wb = load_workbook(filename = 'resultx.xlsx')
+    wb = openpyxl.load_workbook(filename = 'resultx.xlsx')
     sheet_ranges = wb['record']
     data_rows = []
     for row in sheet_ranges.values:
@@ -149,6 +150,8 @@ def write2excel(AllInfoList):
     df2 = pd.DataFrame(data_rows)
     # print(df2)
     df2.to_excel(writer, sheet_name='record', index=False, header=False)
+    worksheet = writer.sheets['record']
+    worksheet.set_column(0, 16, 14)
     writer.save()
     print ('Done Scrapy with {} stockId.'.format(len(AllInfoList)))
 
