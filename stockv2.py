@@ -152,7 +152,9 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
     # print('Before diff two csv stockcsv: {} resultcsv: {} '.format(stockIdListFromStockCsv, stockIdListFromResultCsv))
     if stockIdListFromResultCsv:
         diffList = csvModule.diffList(stockIdListFromStockCsv, stockIdListFromResultCsv)
-        print ('diff stock id in two csv: {}'.format(diffList))
+        if diffList:    
+            # print ('diff stock id in two csv: {}'.format(diffList))
+            print ('[!! 需更新 !!] 以下追蹤股票有異動 {}，請前往 record 進行更新'.format(diffList))
         dataFilePath = 'resultx.xlsx'
         df = pd.read_excel(dataFilePath,sheet_name='result', encoding='big5', keep_default_na=False)
 
@@ -183,7 +185,8 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
         # print(df2)
         df2.to_excel(writer, sheet_name='record', index=False, header=False)
         writer.save()
-    print('Finish sync data')
+    print('同步完成 stockx resultx')
+    return diffList
 
 if __name__ == '__main__':
     print ('Backup lastest resultx.xlsx file to /backup/')
@@ -197,17 +200,20 @@ if __name__ == '__main__':
     # using map() to perform conversion from str list to int list
     stockIdListFromStockCsv = list(map(int, stockIdList)) #stockIdList read from stock.csv
     stockIdListFromResultCsv = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from result.csv
-    print('before sync')
+    print('開始同步 stockx resultx')
 
-
+    diffList = []
     try:
-        syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv)
+        diffList = syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv)
     except PermissionError:
         #syncfiledata will do to_csv so if the data is opening than will throw PermissionError
         sys.exit("[Presmission Error]Probably result.csv is opening by others process")
     except Exception as e:
-        sys.exit(e)
-    print('start scrapy')
+        input('[!!失敗!!] 跑程式前請將 result.xlsx 關閉')
+        sys.exit(1)
+    print('開始爬取資料')
     scrapyData(stockIdList)
-    print('Program Finish')
-    input('成功產製報表')
+    print('完成爬取資料')
+    if diffList:
+        print ('[!! 需更新 !!] 以下追蹤股票有異動 {}，請前往 record 進行更新'.format(diffList))
+    input('[!! 成功 !!] 成功產製報表')
