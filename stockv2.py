@@ -11,8 +11,6 @@ import globalsVar
 import sys
 from openpyxl import load_workbook
 from urllib3.util.retry import Retry
-#------time measure start -------#
-tStart = time.time()
 
 def getStockIdInfoList():
     stockIdListFromResultCSV = csvModule.readStockInfoFromExcel()
@@ -138,10 +136,6 @@ def scrapyData(stockIdList):
         # avoid for anti-scrapy rules, dont request too mush time in a loop
         time.sleep(random.uniform(7, 11))
         
-#-------time measure end---------#
-    tEnd = time.time()
-    # print ("It cost %f sec to finish" % (tEnd - tStart))
-
     # print ('All data to csv')
     # print(AllInfoList)
     csvModule.write2excel(AllInfoList)
