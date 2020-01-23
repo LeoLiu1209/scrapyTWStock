@@ -12,13 +12,13 @@ import sys
 from openpyxl import load_workbook
 from urllib3.util.retry import Retry
 
-def getStockIdInfoList():
-    stockIdListFromResultCSV = csvModule.readStockInfoFromExcel()
+def getTargetStockIdList():
+    stockListWithIdandName = csvModule.readStockInfoFromExcel()
     stockIdList = []
-    for ele in stockIdListFromResultCSV:
-        #split stockid and stockName #0056 00692 006656R
+    for ele in stockListWithIdandName:
+        #split stockid and stockName #0056高股息 00692公司治理 006656R
         stockIdList.append(re.findall(r'^\d{4,}[a-zA-Z]{0,1}', ele)[0])
-    return stockIdList
+    return stockIdList #[0056, 00692...]
 
 def requestPage(url):
     try:
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     csvModule.backupfile('resultx.xlsx')
 
     print ('Program start')
-    stockIdList = getStockIdInfoList()
+    stockIdList = getTargetStockIdList()
     if not stockIdList:
         sys.exit('No stockId in stock.csv')
     
