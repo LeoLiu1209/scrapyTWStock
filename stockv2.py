@@ -100,7 +100,6 @@ def scrapyData(stockIdList):
         # avoid for anti-scrapy rules, dont request too mush time in a loop
         time.sleep(random.uniform(6, 8))
 
-        
         # 取得eps
         lastYearEps = 0
         prev2YearsEps = 0
@@ -144,33 +143,33 @@ def scrapyData(stockIdList):
         
     csvModule.write2excel(AllInfoList)
 
-# if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
-def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
+# if stockid deleted from stockx then the same stockid rows in resultx will be deleted.
+def syncfiledata(stockIdListFromStockxlsx, stockIdListFromResultxlsx):
     diffList = []
-    # print('Before diff two csv stockcsv: {} resultcsv: {} '.format(stockIdListFromStockCsv, stockIdListFromResultCsv))
-    if stockIdListFromResultCsv:
-        diffList = csvModule.diffList(stockIdListFromStockCsv, stockIdListFromResultCsv)
+    print('開始同步 stockx resultx')
+    # adjust stockIdListFromResultxlsx is Empty or not
+    if stockIdListFromResultxlsx:
+        diffList = csvModule.diffList(stockIdListFromStockxlsx, stockIdListFromResultxlsx)
         if diffList:    
-            # print ('diff stock id in two csv: {}'.format(diffList))
             print ('[!! 需更新 !!] 以下追蹤股票有異動 {}，請前往 record 進行更新'.format(diffList))
         dataFilePath = 'resultx.xlsx'
-        df = pd.read_excel(dataFilePath,sheet_name='result', encoding='big5', keep_default_na=False)
+        df = pd.read_excel(dataFilePath, sheet_name='result', encoding='big5', keep_default_na=False)
 
         deletedStockIdxlist = []
         for stockid in diffList:
                 try:
                     # if stockcsv has stockid but resultcsv doesnt have difflist stockid then index() will ValueError
-                    idx = stockIdListFromResultCsv.index(stockid)
-                    deletedStockIdxlist.append(idx)
+                    dropIdx = stockIdListFromResultxlsx.index(stockid)
+                    deletedStockIdxlist.append(dropIdx)
                 except ValueError:
                     continue
-        writer = pd.ExcelWriter('resultx.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter(dataFilePath, engine='xlsxwriter')
         # drop the rows by getting diff IdList[]
         df.drop(deletedStockIdxlist, inplace=True)
         df.to_excel(writer, sheet_name='result', index=False)
 
-        # sheet2
-        wb = load_workbook(filename = 'resultx.xlsx')
+        # keep the sheet data in record otherwise df.toexcel will overwrite the data
+        wb = load_workbook(filename = dataFilePath)
         sheet_ranges = wb['record']
         data_rows = []
         for row in sheet_ranges.values:
@@ -178,9 +177,7 @@ def syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv):
             for cell in row:
                 data_cols.append(cell)
             data_rows.append(data_cols)
-        # print(data_rows)
         df2 = pd.DataFrame(data_rows)
-        # print(df2)
         df2.to_excel(writer, sheet_name='record', index=False, header=False)
         writer.save()
     print('同步完成 stockx resultx')
@@ -196,13 +193,12 @@ if __name__ == '__main__':
         sys.exit('No stockId in stock.csv')
     
     # using map() to perform conversion from str list to int list
-    stockIdListFromStockCsv = list(map(int, stockIdList)) #stockIdList read from stock.csv
-    stockIdListFromResultCsv = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from result.csv
-    print('開始同步 stockx resultx')
+    stockIdListFromStockxlsx = list(map(int, stockIdList)) #stockIdList read from stock.csv
+    stockIdListFromResultxlsx = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from result.csv
 
     diffList = []
     try:
-        diffList = syncfiledata(stockIdListFromStockCsv, stockIdListFromResultCsv)
+        diffList = syncfiledata(stockIdListFromStockxlsx, stockIdListFromResultxlsx)
     except PermissionError:
         #syncfiledata will do to_csv so if the data is opening than will throw PermissionError
         sys.exit("[Presmission Error]Probably result.csv is opening by others process")
