@@ -51,80 +51,86 @@ def requestPage(url):
         
 
 def scrapyData(stockIdList):
-    currentYear = time.strftime('%Y') # or "%y"
+    currentYear = time.strftime('%Y')
+    # 取得前三年的的年度數字
     lastYearDiviendStr = str(int(currentYear)-1)#2019
     last2yearDiviendStr = str(int(currentYear)-2)#2018
     last3yearDiviendStr = str(int(currentYear)-3)#2017
     AllInfoList = []
-    count = 0
+    FinshScrapyAmt = 0
     for stockId in stockIdList:
 
-        # StockDetail.asp contains all the data we need to scrapy
+        # 取得個股股利 : StockDividendPolicy.asp 
         url = 'https://goodinfo.tw/StockInfo/StockDividendPolicy.asp?STOCK_ID='+stockId
         
         # request page and return page
         soup = requestPage(url)
         if soup == None:
             sys.exit('Internet error!! \nProgram finish')
-
+        # 取得股利的table
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"})
-        trfromTable2 = sectionTables[2].findAll('tr', limit=20)
+        trfromTable2 = sectionTables[2].findAll('tr', limit=20) 
         trfromTable2Size = len(sectionTables[2].findAll('tr', limit=20))
-        previous2yearEps = 0
-        lastyesrEps = 0
-        thisyearEps = 0
+
+        # 該TABLE 的 ROW STRUCTURE
+        # 股利發放年度    現金股利        股票股利	
+        # 股利發放年度  盈餘 公積 合計  盈餘 公積 合計 
         for i in range(4, trfromTable2Size):
             tdRows =trfromTable2[i].findAll('td')
-            year = tdRows[0].getText()
+            year = tdRows[0].getText() #股利發放年度
+            # 2330為例 季季配只有第一個會顯示年度，其餘符號表示 2019 ∟
             if not year.isdigit():
-                # print('not digit')
                 continue
             if year == lastYearDiviendStr:
-                moneydiv = tdRows[3].getText()
+                moneydiv = tdRows[3].getText() #[3] [6] 為合計欄位
                 stockdiv = tdRows[6].getText()
             elif year == last2yearDiviendStr:
                 last2yearMoneydiv = tdRows[3].getText()
                 last2yearStockdiv = tdRows[6].getText()
-            elif year == last3yearDiviendStr:
-                previous2yearEps = tdRows[-4].getText()
-                if previous2yearEps is not '0':
-                    break
+                # 爬取兩年股票/現金發放即可，以增加效率
+                break 
         
-        #endprice
-        sectionTables = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
+        # 收盤價(endprice) 盤後抓取成交價即為收盤價
+        # 成交價	漲跌價	漲跌幅	昨收	開盤價	最高價	最低價
+        dailyPriceInfoTable = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
         # trfromTable3 = sectionTables.findAll('tr')[3]
         # tdRows =trfromTable3[3].findAll('td')       => equals to sectionTables.findAll('tr')[3].find('td').getText()
         # endprice = tdRows[0].getText()
-        endprice = sectionTables.findAll('tr', limit=5)[3].find('td').getText()
+        endprice = dailyPriceInfoTable.findAll('tr', limit=5)[3].find('td').getText() #find只return第一個match
+        # avoid for anti-scrapy rules, dont request too mush time in a loop
         time.sleep(random.uniform(6, 8))
 
-        #eps
-        urleps = 'http://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
+        
+        # 取得eps
+        lastYearEps = 0
+        prev2YearsEps = 0
+        prev3YearsEps = 0
+        urlEps = 'http://goodinfo.tw/StockInfo/StockBzPerformance.asp?STOCK_ID='+stockId
         # request page and return page
-        soup = requestPage(urleps)
+        soup = requestPage(urlEps)
         if soup == None:
             sys.exit('Internet error!! \nProgram finish')
         
         sectionTables = soup.findAll('table', {"class": "solid_1_padding_4_0_tbl"})
-        trfromTable2 = sectionTables[1].findAll('tr', limit = 10)
-        trfromTable2Size = len(sectionTables[1].findAll('tr', limit = 10))
-
-        for i in range(2, trfromTable2Size):
-            tdRows =trfromTable2[i].findAll('td') #for this year rows
+        # limit 數量不用大規模爬取 tablerows
+        epsRowsTable = sectionTables[1].findAll('tr', limit = 8) # 8扣除2個header，可以抓取6年之eps
+        epsRowsTableSize = len(sectionTables[1].findAll('tr', limit = 8)) 
+        
+        for i in range(2, epsRowsTableSize):
+            tdRows =epsRowsTable[i].findAll('td') #for this year rows
             year = tdRows[0].getText()
             if year == last2yearDiviendStr:
-                thisyearEps = trfromTable2[i-1].findAll('td')[-3].getText()
-                lastyesrEps = tdRows[-3].getText()
-                previous2yearEps = trfromTable2[i+1].findAll('td')[-3].getText()
+                lastYearEps = epsRowsTable[i-1].findAll('td')[-3].getText()
+                prev2YearsEps = tdRows[-3].getText()
+                prev3YearsEps = epsRowsTable[i+1].findAll('td')[-3].getText()
                 break
 
-
         # print ("stockId:"+stockId+" endprice:"+endprice+"  stockdiv:"+stockdiv+" monetdiv:"+moneydiv+"  lastyesrEps:"+lastyesrEps+"  thisyearEps:"+thisyearEps)
-        singleStockInfo = [stockId, endprice, last2yearStockdiv, last2yearMoneydiv, stockdiv, moneydiv, previous2yearEps, lastyesrEps, thisyearEps]
+        singleStockInfo = [stockId, endprice, last2yearStockdiv, last2yearMoneydiv, stockdiv, moneydiv, prev3YearsEps, prev2YearsEps, lastYearEps]
         AllInfoList.append(singleStockInfo)
         
-        count+=1
-        print ('Finish scrapy {} stock'.format(count))
+        FinshScrapyAmt+=1
+        print ('Finish scrapy {} stock'.format(FinshScrapyAmt))
 
         # Dont have to sleep when scarpy to the end stockId 
         if stockId == stockIdList[-1]:
@@ -134,10 +140,8 @@ def scrapyData(stockIdList):
             globalsVar.setEPSYearStrList([last2yearDiviendStr, last3yearDiviendStr])
             break
         # avoid for anti-scrapy rules, dont request too mush time in a loop
-        time.sleep(random.uniform(7, 11))
+        time.sleep(random.uniform(7, 10))
         
-    # print ('All data to csv')
-    # print(AllInfoList)
     csvModule.write2excel(AllInfoList)
 
 # if stockid deleted from stockcsv then the same stockid rows in resultcsv must be deleted.
