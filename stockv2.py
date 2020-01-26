@@ -11,6 +11,7 @@ import globalsVar
 import sys
 from openpyxl import load_workbook
 from urllib3.util.retry import Retry
+import xlsxwriter
 
 def getTargetStockIdList():
     stockListWithIdandName = csvModule.readStockInfoFromExcel()
@@ -190,20 +191,22 @@ if __name__ == '__main__':
     print ('Program start')
     stockIdList = getTargetStockIdList()
     if not stockIdList:
-        sys.exit('No stockId in stock.csv')
+        input('[!! 失敗 !!] 請添加標的至 stockx.xlsx')
+        sys.exit(1)
     
     # using map() to perform conversion from str list to int list
     stockIdListFromStockxlsx = list(map(int, stockIdList)) #stockIdList read from stock.csv
-    stockIdListFromResultxlsx = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from result.csv
+    stockIdListFromResultxlsx = csvModule.getdatalistfromcolumnXlsx('股號', 'result') # read from resultx.xlsx
 
     diffList = []
     try:
         diffList = syncfiledata(stockIdListFromStockxlsx, stockIdListFromResultxlsx)
-    except PermissionError:
+    except xlsxwriter.exceptions.FileCreateError as e:
         #syncfiledata will do to_csv so if the data is opening than will throw PermissionError
-        sys.exit("[Presmission Error]Probably result.csv is opening by others process")
+        input('[!! 失敗 !!] 跑程式前請將 result.xlsx 關閉')
+        sys.exit(1)
     except Exception as e:
-        input('[!!失敗!!] 跑程式前請將 result.xlsx 關閉')
+        input('[!! 失敗 !!] {}'.format(e))
         sys.exit(1)
     print('開始爬取資料')
     scrapyData(stockIdList)
