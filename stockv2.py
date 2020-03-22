@@ -82,15 +82,20 @@ def scrapyData(stockIdList):
             # 2330為例 季季配只有第一個會顯示年度，其餘符號表示 2019 ∟
             if not year.isdigit():
                 continue
-            if year == lastYearDiviendStr:
+            if year == currentYear:
                 moneydiv = tdRows[3].getText() #[3] [6] 為合計欄位
                 stockdiv = tdRows[6].getText()
-            elif year == last2yearDiviendStr:
+            elif year == lastYearDiviendStr:
                 last2yearMoneydiv = tdRows[3].getText()
                 last2yearStockdiv = tdRows[6].getText()
                 # 爬取兩年股票/現金發放即可，以增加效率
                 break 
-        
+        # if not announce Diviend replace '-' to 0
+        if moneydiv == '-':
+            moneydiv = '0'
+        if stockdiv == '-':
+            stockdiv = '0'
+
         # 收盤價(endprice) 盤後抓取成交價即為收盤價
         # 成交價	漲跌價	漲跌幅	昨收	開盤價	最高價	最低價
         dailyPriceInfoTable = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
