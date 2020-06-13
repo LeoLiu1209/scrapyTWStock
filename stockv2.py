@@ -98,7 +98,7 @@ def scrapyData(stockIdList):
 
         # 收盤價(endprice) 盤後抓取成交價即為收盤價
         # 成交價	漲跌價	漲跌幅	昨收	開盤價	最高價	最低價
-        dailyPriceInfoTable = soup.find('table', {"class": "solid_1_padding_3_2_tbl"})
+        dailyPriceInfoTable = soup.find('table', {"class": "solid_1_padding_3_1_tbl"})
         # trfromTable3 = sectionTables.findAll('tr')[3]
         # tdRows =trfromTable3[3].findAll('td')       => equals to sectionTables.findAll('tr')[3].find('td').getText()
         # endprice = tdRows[0].getText()
